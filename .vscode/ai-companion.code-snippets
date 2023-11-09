@@ -1,0 +1,12 @@
+{
+	"sessionserver": {
+		"scope": "javascript,typescript,typescriptreact",
+		"prefix": "sessionserver",
+		"body": [
+			"interface Session {",
+			"  user: { name: string; email: string; imageUrl: string; id: string };",
+			"}"
+		],
+		"description": "Define Session interface"
+	}
+}

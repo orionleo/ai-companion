@@ -8,15 +8,29 @@ import MobileSidebar from "./MobileSidebar";
 import ModeToggle from "./ModeToggle";
 import { Button } from "@/components/ui/button";
 import { useProModal } from "@/hooks/use-pro-modal";
+import { signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import UserAvatar from "./UserAvatar";
 
 const font = Poppins({ weight: "600", subsets: ["latin"] });
+
 interface NavbarProps {
   isPro: boolean;
 }
 
-
 const Navbar = ({ isPro }: NavbarProps) => {
   const proModal = useProModal();
+  const session = useSession();
+  const router = useRouter();
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    (session?.status === "authenticated") ?
+      setLoggedIn(true) :
+      setLoggedIn(false)
+  }, [session?.status]);
 
   return (
     <div className="fixed w-full z-50 flex justify-between items-center py-2 px-4 h-16 border-b border-primary/10 bg-secondary">
@@ -36,6 +50,18 @@ const Navbar = ({ isPro }: NavbarProps) => {
           </Button>
         )}
         <ModeToggle />
+        {!loggedIn ? (
+          <Button variant={"premium"} onClick={() => router.push('/sign-in',)}>
+            Sign In
+          </Button>
+        ) : (
+          <>
+            <UserAvatar />
+            <Button variant={"destructive"} onClick={() => signOut()}>
+              Sign Out
+            </Button>
+          </>
+        )}
 
       </div>
     </div>
