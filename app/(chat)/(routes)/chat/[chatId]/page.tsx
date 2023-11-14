@@ -1,4 +1,5 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import ChatClient from "@/components/ChatClient";
 import prismadb from "@/lib/prismadb";
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation";
@@ -18,15 +19,33 @@ const ChatIdPae = async ({ params }: ChatIdPageProps) => {
 
     if (!session) redirect('/sign-in');
 
+    const userId = session.user.id
     const companion = await prismadb.companion.findUnique({
         where: {
             id: params.chatId,
             userId: session.user.id
+        },
+        include: {
+            messages: {
+                orderBy: {
+                    createdAt: "asc"
+                },
+                where: {
+                    userId,
+                }
+            },
+            _count: {
+                select: {
+                    messages: true,
+                }
+            }
         }
-    })
+    });
+
+    if (!companion) redirect("/");
 
     return (
-        <div>ChatIdPae</div>
+        <ChatClient companion={companion} />
     )
 }
 

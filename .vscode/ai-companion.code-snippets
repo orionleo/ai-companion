@@ -8,5 +8,16 @@
 			"}"
 		],
 		"description": "Define Session interface"
-	}
+	},
+	"sessionclient": {
+		"scope": "javascript,typescript,typescriptreact",
+		"prefix": "sessionclient",
+		"body": [
+			"interface Session {",
+			"  user: { name: string; email: string; imageUrl: string; id: string };",
+			"  expires: Date",
+			"}"
+		],
+		"description": "Define Session interface"
+	},
 }

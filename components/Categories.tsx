@@ -5,6 +5,7 @@ import { Category } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 interface CategoriesProps {
     categories: Category[]
@@ -13,6 +14,7 @@ interface CategoriesProps {
 const Categories = ({ categories }: CategoriesProps) => {
     const router = useRouter();
     const searchParams = useSearchParams();
+  
 
     const categoryId = searchParams.get("categoryId");
 
