@@ -16,7 +16,7 @@ interface Session {
 
 export const checkSubscription = async () => {
   const session = (await getServerSession(authOptions)) as Session;
-  const userId = session.user.id;
+  const userId = session?.user.id;
   if (!userId) {
     return false;
   }

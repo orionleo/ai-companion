@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { StreamingTextResponse, LangChainStream } from "ai";
+import { StreamingTextResponse, LangChainStream, OpenAIStream } from "ai";
 
 import { Replicate } from "langchain/llms/replicate";
 import { CallbackManager } from "langchain/callbacks";
@@ -13,9 +13,40 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 import { TextEncoder } from "util";
 
 dotenv.config({ path: `.env` });
+import { Configuration, OpenAIApi } from "openai-edge";
+
+const config = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+const openai = new OpenAIApi(config);
+
 interface Session {
   user: { name: string; email: string; imageUrl: string; id: string };
 }
+
+interface ChatMessage {
+  role: string;
+  content: string;
+}
+
+function convertToChatMessages(prompts: string[]): ChatMessage[] {
+  const messages: ChatMessage[] = [];
+
+  prompts.forEach((prompt) => {
+    const parts = prompt.split("\n");
+    const role = parts[0].trim(); // Extract role from the first line
+
+    // Assuming that each role line starts with either 'Human:', 'Elon:', or 'User:'
+    if (role.startsWith("Human:") || role.startsWith("User:")) {
+      messages.push({ role: "user", content: parts[1].trim() }); // Add user message
+    } else {
+      messages.push({ role: "assistant", content: parts[1].trim() }); // Add assistant message
+    }
+  });
+
+  return messages;
+}
+
 export async function POST(
   request: Request,
   { params }: { params: { chatId: string } }
@@ -122,6 +153,8 @@ export async function POST(
         )
         .catch(console.error)
     );
+
+    
 
     const cleaned = resp.replaceAll(",", "");
     const chunks = cleaned.split("\n");

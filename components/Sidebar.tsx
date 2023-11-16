@@ -5,17 +5,31 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { useProModal } from "@/hooks/use-pro-modal";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { useToast } from "./ui/use-toast";
 
 interface SidebarProps {
     isPro: boolean;
 }
 
- const Sidebar = ({
+const Sidebar = ({
     isPro
 }: SidebarProps) => {
     const proModal = useProModal();
     const router = useRouter();
     const pathname = usePathname();
+
+    const session = useSession();
+
+    const [loggedIn, setLoggedIn] = useState(false);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        (session?.status === "authenticated") ?
+            setLoggedIn(true) :
+            setLoggedIn(false)
+    }, [session?.status]);
 
     const onNavigate = (url: string, pro: boolean) => {
         if (pro && !isPro) {
@@ -52,7 +66,15 @@ interface SidebarProps {
                 <div className="space-y-2">
                     {routes.map(route => (
                         <div
-                            onClick={() => onNavigate(route.href, route.pro)}
+                            onClick={() => {
+                                loggedIn ?
+                                    (onNavigate(route.href, route.pro)) :
+                                    (toast({
+                                        description: "Login First",
+                                        variant: "default"
+                                    }), router.push("/sign-in")
+                                    )
+                            }}
                             key={route.href}
                             className={cn("text-muted-foreground text-xs group flex p-3 w-full justify-start font-medium cursor-pointer hover:text-primary hover:bg-primary/10 rounded-lg transition", pathname === route.href && "bg-primary/10 text-primary")}
                         >

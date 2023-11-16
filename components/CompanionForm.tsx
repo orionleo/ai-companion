@@ -34,24 +34,12 @@ Elon: Always! But right now, I'm particularly excited about Neuralink. It has th
 `;
 
 const formSchema = z.object({
-    name: z.string().min(1, {
-        message: "Name is required.",
-    }),
-    description: z.string().min(1, {
-        message: "Description is required.",
-    }),
-    instructions: z.string().min(200, {
-        message: "Instructions require at least 200 characters."
-    }),
-    seed: z.string().min(200, {
-        message: "Seed requires at least 200 characters."
-    }),
-    src: z.string().min(1, {
-        message: "Image is required."
-    }),
-    categoryId: z.string().min(0, {
-        message: "Category is required",
-    }),
+    name: z.string(),
+    description: z.string(),
+    instructions: z.string(),
+    seed: z.string(),
+    src: z.string(),
+    categoryId: z.string(),
 });
 
 interface CompanionFormProps {
@@ -81,28 +69,78 @@ const CompanionForm = ({
     const isLoading = form.formState.isSubmitting;
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values);
-        try {
-            if (initialData) {
-                await axios.patch(`/api/companion/${initialData.id}`, values);
-            } else {
-                await axios.post("/api/companion", values);
-            }
-
+        console.log("Hello");
+        if (!values.name.trim()) {
             toast({
-                description: "Success.",
-                duration: 3000,
+                description: "Please add a name for your companion.",
+                variant: "destructive"
             });
-
-            router.refresh();
-            router.push("/");
-        } catch (error) {
-            toast({
-                variant: "destructive",
-                description: "Something went wrong.",
-                duration: 3000,
-            });
+            return;
         }
+
+        if (!values.description.trim()) {
+            toast({
+                description: "Please add a descripton for your companion.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (values.instructions.trim().length < 200) {
+            toast({
+                description: "Instructions for your companion should have minimum 200 characters.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (values.seed.trim().length < 200) {
+            toast({
+                description: "Seed for your companion should have minimum 200 characters.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (!values.src.trim()) {
+            toast({
+                description: "Please upload Image for the companion.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        if (!values.categoryId.trim()) {
+            toast({
+                description: "Please choose a category for your companion.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+
+
+        // try {
+        //     if (initialData) {
+        //         await axios.patch(`/api/companion/${initialData.id}`, values);
+        //     } else {
+        //         await axios.post("/api/companion", values);
+        //     }
+
+        //     toast({
+        //         description: "Success.",
+        //         duration: 3000,
+        //     });
+
+        //     router.refresh();
+        //     router.push("/");
+        // } catch (error) {
+        //     toast({
+        //         variant: "destructive",
+        //         description: "Something went wrong.",
+        //         duration: 3000,
+        //     });
+        // }
     };
 
     return (
@@ -122,7 +160,7 @@ const CompanionForm = ({
                         name="src"
                         render={({ field }) => (
                             <FormItem className="flex flex-col items-center justify-center space-y-4 col-span-2">
-                                <FormControl>
+                                <FormControl >
                                     <FileUpload
                                         endpoint="companionImage"
                                         value={field.value}
@@ -234,7 +272,7 @@ const CompanionForm = ({
                         )}
                     />
                     <div className="w-full flex justify-center">
-                        <Button size="lg" disabled={isLoading}>
+                        <Button size="lg" disabled={isLoading} >
                             {initialData ? "Edit your companion" : "Create your companion"}
                             <Wand2 className="w-4 h-4 ml-2" />
                         </Button>

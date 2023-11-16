@@ -7,18 +7,18 @@ const RootLayout = async ({
 }: {
     children: React.ReactNode;
 }) => {
-    // const isPro = await checkSubscription();
+    const isPro = await checkSubscription();
 
     return (
         <div className="h-full">
             <Navbar 
-            isPro={true}
-            // isPro={isPro}
+            // isPro={true}
+            isPro={isPro}
              />
             <div className="hidden md:flex mt-16 h-full w-20 flex-col fixed inset-y-0">
                 <Sidebar 
-                isPro={true}
-                // isPro={isPro}
+                // isPro={true}
+                isPro={isPro}
                  />
             </div>
             <main className="md:pl-20 pt-16 h-full">

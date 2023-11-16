@@ -23,7 +23,10 @@ const ChatIdPae = async ({ params }: ChatIdPageProps) => {
     const companion = await prismadb.companion.findUnique({
         where: {
             id: params.chatId,
-            userId: session.user.id
+            OR: [
+                { userId: userId },
+                { userId: 'clopu6fxi0000ltrjo4zol15b' } // Replace with the specific user ID condition
+            ],
         },
         include: {
             messages: {

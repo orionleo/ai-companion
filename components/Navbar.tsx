@@ -43,7 +43,7 @@ const Navbar = ({ isPro }: NavbarProps) => {
         </Link>
       </div>
       <div className="flex items-center gap-x-3">
-        {!isPro && (
+        {(!isPro && loggedIn) && (
           <Button onClick={proModal.onOpen} size="sm" variant="premium">
             Upgrade
             <Sparkles className="h-4 w-4 fill-white text-white ml-2" />
