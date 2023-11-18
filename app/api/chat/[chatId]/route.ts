@@ -4,6 +4,7 @@ import { StreamingTextResponse, LangChainStream, OpenAIStream } from "ai";
 import { Replicate } from "langchain/llms/replicate";
 import { CallbackManager } from "langchain/callbacks";
 import { NextResponse } from "next/server";
+import OpenAI from "openai";
 
 import { MemoryManager } from "@/lib/memory";
 import { rateLimit } from "@/lib/rate-limit";
@@ -13,39 +14,47 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 import { TextEncoder } from "util";
 
 dotenv.config({ path: `.env` });
-import { Configuration, OpenAIApi } from "openai-edge";
+import {
+  ChatCompletionRequestMessage,
+  Configuration,
+  OpenAIApi,
+} from "openai-edge";
 
-const config = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
-const openai = new OpenAIApi(config);
+// const config = new Configuration({
+//   apiKey: process.env.OPENAI_API_KEY!,
+// });
+// const openai = new OpenAI();
 
 interface Session {
   user: { name: string; email: string; imageUrl: string; id: string };
 }
 
-interface ChatMessage {
-  role: string;
-  content: string;
-}
+// function convertToChatMessages(data: string) {
+//   const messages: any[] = [];
+//   console.log(data);
 
-function convertToChatMessages(prompts: string[]): ChatMessage[] {
-  const messages: ChatMessage[] = [];
+//   const prompts = data.split("\n\n");
 
-  prompts.forEach((prompt) => {
-    const parts = prompt.split("\n");
-    const role = parts[0].trim(); // Extract role from the first line
+//   prompts.forEach((prompt) => {
+//     const parts = prompt.split("\n");
+//     const role = parts[0].trim();
 
-    // Assuming that each role line starts with either 'Human:', 'Elon:', or 'User:'
-    if (role.startsWith("Human:") || role.startsWith("User:")) {
-      messages.push({ role: "user", content: parts[1].trim() }); // Add user message
-    } else {
-      messages.push({ role: "assistant", content: parts[1].trim() }); // Add assistant message
-    }
-  });
+//     // Assuming that each role line starts with 'Human:', 'User:', or 'Elon:'
+//     if (role.startsWith("Human:") || role.startsWith("User:")) {
+//       messages.push({
+//         role: "user",
+//         content: parts.slice(1).join("\n").trim(),
+//       });
+//     } else {
+//       messages.push({
+//         role: "assistant",
+//         content: parts.slice(1).join("\n").trim(),
+//       });
+//     }
+//   });
 
-  return messages;
-}
+//   return messages;
+// }
 
 export async function POST(
   request: Request,
@@ -82,7 +91,6 @@ export async function POST(
         },
       },
     });
-    console.log("COMPANION", companion);
 
     if (!companion) {
       return new NextResponse("Companion not found", { status: 404 });
@@ -141,33 +149,63 @@ export async function POST(
       await model
         .call(
           `
-        ONLY generate plain sentences without prefix of who is speaking. DO NOT use ${companion.name}: prefix. 
+        ONLY generate plain sentences without prefix of who is speaking. DO NOT use ${companion.name}: prefix.
 
         ${companion.instructions}
 
         Below are relevant details about ${companion.name}'s past and the conversation you are in.
         ${relevantHistory}
 
-
         ${recentChatHistory}\n${companion.name}:`
         )
         .catch(console.error)
     );
 
-    
+    // `ONLY generate plain sentences without prefix of who is speaking. DO NOT use ${companion.name}: prefix.
+
+    // ${companion.instructions}
+
+    // Below are relevant details about ${companion.name}'s past and the conversation you are in.
+    // ${relevantHistory}
+
+    // ${recentChatHistory}\n${companion.name}:`
+
+    // const messages = convertToChatMessages(`${recentChatHistory}\n${companion.name}:`);
+    // const lines = `${recentChatHistory}\n${companion.name}:`.split("\n");
+    // const messages: any[] = lines.map((line) => {
+    //   const role =
+    //     line.startsWith("Human") || line.startsWith("User")
+    //       ? "user"
+    //       : "assistant";
+    //   const content = line.replace(/^(Human:|User:|Elon:)\s*/, "");
+    //   return { role, content };
+    // });
+
+    // console.log("MESSAGES", messages);
+    // openai.apiKey = process.env.OPENAI_API_KEY!;
+
+    // const completion = await openai.chat.completions.create({
+    //   messages,
+    //   model: "gpt-3.5-turbo-1106",
+    // });
+
+    // // console.log(messages);
+
+    // // const stream = OpenAIStream(res);
+    // return NextResponse.json(completion.choices[0].message);
+    // console.log("STREAMING TEXT RESPONSE", streamTextResponse);
 
     const cleaned = resp.replaceAll(",", "");
     const chunks = cleaned.split("\n");
     const response = chunks[0].replace(/^"|"$/g, "");
     console.log("RESPONSE", response);
-    console.log(resp);
 
     await memoryManager.writeToHistory("" + response.trim(), companionKey);
     var Readable = require("stream").Readable;
 
-    var s = new Readable();
-    s.push(response);
-    s.push(null);
+    // var s = new Readable();
+    // s.push(response);
+    // s.push(null);
     if (response !== undefined && response.length > 1) {
       memoryManager.writeToHistory("" + response.trim(), companionKey);
 
@@ -189,6 +227,8 @@ export async function POST(
 
     return NextResponse.json(response);
   } catch (error) {
+    const e = error as unknown as any;
+    console.log("ERROR", e.message);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
