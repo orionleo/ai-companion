@@ -23,7 +23,8 @@ interface ChatHeaderProps {
         _count: {
             messages: number;
         }
-    }
+    },
+    messageCount: Number,
 }
 
 interface User {
@@ -33,7 +34,7 @@ interface User {
     id: string;
 }
 
-function ChatHeader({ companion }: ChatHeaderProps) {
+function ChatHeader({ companion, messageCount }: ChatHeaderProps) {
     const router = useRouter();
     const { data: session, status } = useSession();
     const user = session?.user as User;
@@ -71,7 +72,7 @@ function ChatHeader({ companion }: ChatHeaderProps) {
                         <p className="font-bold">{companion.name}</p>
                         <div className="flex items-center text-xs text-muted-foreground">
                             <MessagesSquare className="w-3 h-3 mr-1" />
-                            {companion._count.messages}
+                            <> {Number(messageCount) + 1}</>
                         </div>
                     </div>
                     <p className="text-xs text-muted-foreground">

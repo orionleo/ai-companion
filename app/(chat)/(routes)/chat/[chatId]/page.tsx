@@ -45,10 +45,18 @@ const ChatIdPae = async ({ params }: ChatIdPageProps) => {
         }
     });
 
+
     if (!companion) redirect("/");
 
+    const messages = await prismadb.message.findMany({
+        where: {
+            companionId: companion.id,
+            userId: userId,
+        }
+    });
+    const messageCount = messages.length || 0;
     return (
-        <ChatClient companion={companion} />
+        <ChatClient companion={companion} messageCount={messageCount} />
     )
 }
 

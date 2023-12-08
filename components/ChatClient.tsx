@@ -16,11 +16,12 @@ interface ChatClientProps {
         _count: {
             messages: number;
         }
-    };
+    },
+    messageCount:Number,
 };
 
 const ChatClient = ({
-    companion,
+    companion,messageCount
 }: ChatClientProps) => {
     const router = useRouter();
     const [messages, setMessages] = useState<ChatMessageProps[]>(companion.messages);
@@ -57,7 +58,7 @@ const ChatClient = ({
 
     return (
         <div className="flex flex-col h-full p-4 space-y-2">
-            <ChatHeader companion={companion} />
+            <ChatHeader companion={companion} messageCount={messageCount} />
             <ChatMessages
                 companion={companion}
                 isLoading={isLoading}

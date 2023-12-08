@@ -20,7 +20,7 @@ model User {
     sessions      Session[]
     companion     Companion[]
 
-    tokens Int @default(10)
+    tokens       Int            @default(10)
 }
 
 model Account {
@@ -82,8 +82,8 @@ model Companion {
 
     categories Category[]
 
-    messages Message[]
-    User     User      @relation(fields: [userId], references: [id])
+    messages     Message[]
+    User         User           @relation(fields: [userId], references: [id])
 
     @@unique([userId, id])
     @@index([userId])
