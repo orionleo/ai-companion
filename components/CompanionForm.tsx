@@ -120,27 +120,28 @@ const CompanionForm = ({
 
 
 
-        // try {
-        //     if (initialData) {
-        //         await axios.patch(`/api/companion/${initialData.id}`, values);
-        //     } else {
-        //         await axios.post("/api/companion", values);
-        //     }
+        try {
+            if (initialData) {
+                await axios.patch(`/api/companion/${initialData.id}`, values);
+            } else {
+                await axios.post("/api/companion", values);
+            }
 
-        //     toast({
-        //         description: "Success.",
-        //         duration: 3000,
-        //     });
+            toast({
+                description: "Success.",
+                duration: 3000,
+            });
 
-        //     router.refresh();
-        //     router.push("/");
-        // } catch (error) {
-        //     toast({
-        //         variant: "destructive",
-        //         description: "Something went wrong.",
-        //         duration: 3000,
-        //     });
-        // }
+            router.refresh();
+            router.push("/");
+        } catch (error) {
+            console.log(error);
+            toast({
+                variant: "destructive",
+                description: "Something went wrong.",
+                duration: 3000,
+            });
+        }
     };
 
     return (

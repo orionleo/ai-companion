@@ -11,6 +11,7 @@ interface Session {
 
 export async function POST(request: Request) {
   try {
+    console.log("HELLLO");
     const body = await request.json();
     const session = (await getServerSession(authOptions)) as Session;
     const user = session.user;
